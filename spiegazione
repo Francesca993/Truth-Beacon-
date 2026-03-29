@@ -1,7 +1,7 @@
-FACTCHECK AI - GUIDA DI PRESENTAZIONE (PITCH)
+Truth Beacon AI - GUIDA DI PRESENTAZIONE (PITCH)
 
 1) Elevator Pitch (20-30 secondi)
-FactCheck AI e una web app che aiuta le persone a verificare notizie e affermazioni in pochi secondi.
+Truth Beacon AI e una web app che aiuta le persone a verificare notizie e affermazioni in pochi secondi.
 Usa Google Search in tempo reale tramite Gemini, confronta fonti internazionali, assegna un livello di credibilita
 e restituisce un verdetto chiaro: VERO, FALSO, PARZIALMENTE VERO o NON VERIFICABILE.
 
@@ -64,7 +64,7 @@ C) Backend (server.py + rss_collector.py)
 - Modalita team (giornalisti/scuole/PA).
 
 9) Script demo da 2 minuti
-1. "Questa e FactCheck AI: inserisco un'affermazione."
+1. "Questa e Truth Beacon AI: inserisco un'affermazione."
 2. "Clicco Verifica: il sistema avvia ricerca live su Google."
 3. "Ottengo verdetto, confidence e fonti con link."
 4. "Qui vedo l'analisi e i segnali di rischio."
@@ -72,5 +72,5 @@ C) Backend (server.py + rss_collector.py)
 6. "Obiettivo: ridurre il tempo tra esposizione a una notizia e verifica critica."
 
 10) Chiusura pitch (10 secondi)
-FactCheck AI non vuole solo dire se una notizia e vera o falsa:
+Truth Beacon AI non vuole solo dire se una notizia e vera o falsa:
 vuole insegnare alle persone come verificare meglio, piu velocemente e con metodo.

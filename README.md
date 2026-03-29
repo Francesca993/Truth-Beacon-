@@ -1,4 +1,4 @@
-# FactCheck AI 🔍
+# Truth Beacon AI 🔍
 
 Sistema avanzato di fact-checking con analisi multi-fonte, scoring di credibilità e verdetto motivato.
 
