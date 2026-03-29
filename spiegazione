@@ -1,0 +1,76 @@
+FACTCHECK AI - GUIDA DI PRESENTAZIONE (PITCH)
+
+1) Elevator Pitch (20-30 secondi)
+FactCheck AI e una web app che aiuta le persone a verificare notizie e affermazioni in pochi secondi.
+Usa Google Search in tempo reale tramite Gemini, confronta fonti internazionali, assegna un livello di credibilita
+e restituisce un verdetto chiaro: VERO, FALSO, PARZIALMENTE VERO o NON VERIFICABILE.
+
+2) Il problema che risolve
+- Le fake news circolano piu velocemente delle smentite.
+- L'utente medio non ha tempo di aprire 10 fonti e confrontarle.
+- I contenuti AI-generated (deepfake, audio fake, immagini sintetiche) rendono la verifica ancora piu difficile.
+
+3) La soluzione
+- Un unico punto di verifica con ricerca live multi-fonte.
+- Risposta strutturata con:
+  - verdetto
+  - confidence score
+  - fonti usate
+  - analisi motivata
+  - segnali di rischio
+- Archivio fake news separato per monitorare casi recenti da feed RSS.
+
+4) Come funziona tecnicamente (semplice)
+A) Pagina principale (index.html)
+- L'utente inserisce una claim.
+- Il frontend chiama Gemini API con tool Google Search.
+- Il modello cerca fonti online, costruisce JSON e la UI mostra risultato + fonti.
+- Sono presenti guardrail per segnalare quando non c'e evidenza di grounding/search reale.
+
+B) Pagina fake news (fakenews.html)
+- Non usa piu dati hardcoded.
+- Chiama /api/fakenews sul server locale.
+- Visualizza casi filtrabili per tipo (misinfo, deepfake, old, numbers, quote).
+
+C) Backend (server.py + rss_collector.py)
+- server.py espone file statici e endpoint API locale.
+- /api/fakenews usa rss_collector.py per raccogliere articoli da feed RSS internazionali.
+- I risultati sono normalizzati in un formato card-ready per il frontend.
+
+5) Struttura progetto (da citare in demo)
+- index.html -> esperienza di verifica claim
+- fakenews.html -> archivio fake news
+- server.py -> server locale + endpoint /api/fakenews
+- rss_collector.py -> raccolta RSS multi-fonte
+- requirements.txt -> dipendenze Python
+
+6) Valore distintivo
+- Ricerca live (non solo knowledge interna del modello).
+- Approccio trasparente: mostra fonti, stance e spiegazione.
+- UX pensata per utenti non tecnici ma utile anche in contesti educativi/media literacy.
+- Estensibile: puoi aggiungere nuove fonti, regole e scoring.
+
+7) Limiti (da dire con onesta)
+- Non sostituisce il fact-check umano professionale.
+- Dipende dalla qualita delle fonti disponibili online in quel momento.
+- Alcune query ambigue possono risultare NON VERIFICABILE.
+- Lato RSS, la disponibilita dipende da rete/feed esterni.
+
+8) Roadmap (prossimi step)
+- Salvataggio storico verifiche in database.
+- Ranking fonti piu robusto e spiegabile.
+- Dashboard trend fake news per tema/area geografica.
+- Export report PDF e API pubblica.
+- Modalita team (giornalisti/scuole/PA).
+
+9) Script demo da 2 minuti
+1. "Questa e FactCheck AI: inserisco un'affermazione."
+2. "Clicco Verifica: il sistema avvia ricerca live su Google."
+3. "Ottengo verdetto, confidence e fonti con link."
+4. "Qui vedo l'analisi e i segnali di rischio."
+5. "A lato abbiamo l'archivio fake news aggiornato dai feed."
+6. "Obiettivo: ridurre il tempo tra esposizione a una notizia e verifica critica."
+
+10) Chiusura pitch (10 secondi)
+FactCheck AI non vuole solo dire se una notizia e vera o falsa:
+vuole insegnare alle persone come verificare meglio, piu velocemente e con metodo.

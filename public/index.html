@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FactCheck AI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface2: #1a1a26;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #f0eff8;
+  --muted: rgba(240,239,248,0.45);
+  --accent: #7c6aff;
+  --accent2: #a855f7;
+  --green: #22c97a;
+  --red: #f05252;
+  --amber: #f5a623;
+  --blue: #60a5fa;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 500px;
+  background: radial-gradient(ellipse, rgba(124,106,255,0.12) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+.container { max-width: 820px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+header { padding: 48px 0 40px; text-align: center; }
+.logo-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
+.logo-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.logo-text { font-family: 'DM Serif Display', serif; font-size: 28px; letter-spacing: -0.5px; }
+.logo-text span { color: var(--accent); }
+header p { font-size: 15px; color: var(--muted); max-width: 480px; margin: 0 auto; font-weight: 300; }
+
+.setup-banner {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;
+}
+.setup-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.setup-banner label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.setup-banner input {
+  flex: 1; min-width: 200px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 7px 12px;
+  color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; outline: none;
+}
+.setup-banner input:focus { border-color: var(--accent); }
+.model-select {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 7px 10px;
+  color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; outline: none; cursor: pointer;
+}
+.key-note { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+.key-note a { color: var(--accent); text-decoration: none; }
+.key-note a:hover { text-decoration: underline; }
+.quota-row { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+.quota-pill {
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  padding: 3px 10px; border-radius: 4px;
+  background: rgba(124,106,255,0.1); border: 1px solid rgba(124,106,255,0.2);
+  color: rgba(124,106,255,0.9);
+}
+
+.search-wrap { margin-bottom: 40px; }
+.claim-box {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 16px; padding: 16px; transition: border-color 0.2s;
+}
+.claim-box:focus-within { border-color: var(--accent); }
+.claim-box textarea {
+  width: 100%; background: none; border: none; outline: none;
+  color: var(--text); font-family: 'Outfit', sans-serif;
+  font-size: 15px; font-weight: 400; resize: none; min-height: 80px; line-height: 1.6;
+}
+.claim-box textarea::placeholder { color: var(--muted); }
+.claim-box-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+}
+.char-count { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.btn-check {
+  display: flex; align-items: center; gap: 8px; padding: 9px 20px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; color: #fff; font-family: 'Outfit', sans-serif;
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+}
+.btn-check:hover { opacity: 0.9; }
+.btn-check:active { transform: scale(0.98); }
+.btn-check:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.examples-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.ex-pill {
+  font-size: 12px; padding: 5px 12px; border: 1px solid var(--border2);
+  border-radius: 20px; color: var(--muted); cursor: pointer;
+  font-family: 'DM Mono', monospace; transition: all 0.15s;
+}
+.ex-pill:hover { color: var(--text); border-color: var(--accent); background: rgba(124,106,255,0.08); }
+
+.loading-wrap { display: none; text-align: center; padding: 40px 0; }
+.scanner {
+  width: 60px; height: 60px; margin: 0 auto 20px; border-radius: 50%;
+  border: 2px solid var(--border2); border-top-color: var(--accent);
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-step { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.loading-sources {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  margin-top: 16px; max-width: 500px; margin-left: auto; margin-right: auto;
+}
+.src-badge {
+  font-size: 11px; padding: 3px 9px; border-radius: 4px;
+  font-family: 'DM Mono', monospace; background: var(--surface);
+  border: 1px solid var(--border); color: var(--muted); animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+.result-wrap { display: none; }
+.verdict-banner {
+  border-radius: 14px; padding: 24px 28px; margin-bottom: 24px;
+  border: 1px solid; animation: slideUp 0.4s ease;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.verdict-banner.true     { background: rgba(34,201,122,0.07); border-color: rgba(34,201,122,0.25); }
+.verdict-banner.false    { background: rgba(240,82,82,0.07);  border-color: rgba(240,82,82,0.25); }
+.verdict-banner.partial  { background: rgba(245,166,35,0.07); border-color: rgba(245,166,35,0.25); }
+.verdict-banner.uncertain{ background: rgba(96,165,250,0.07); border-color: rgba(96,165,250,0.25); }
+
+.verdict-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  font-family: 'DM Mono', monospace; padding: 4px 10px; border-radius: 4px; margin-bottom: 10px;
+}
+.true  .verdict-chip { background: rgba(34,201,122,0.15); color: var(--green); }
+.false .verdict-chip { background: rgba(240,82,82,0.15);  color: var(--red); }
+.partial .verdict-chip { background: rgba(245,166,35,0.15); color: var(--amber); }
+.uncertain .verdict-chip { background: rgba(96,165,250,0.15); color: var(--blue); }
+
+.verdict-title { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 8px; line-height: 1.3; }
+.verdict-summary { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+.conf-bar-wrap { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.conf-bar { flex: 1; height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; }
+.conf-fill { height: 100%; border-radius: 2px; transition: width 1s ease; }
+.true .conf-fill { background: var(--green); }
+.false .conf-fill { background: var(--red); }
+.partial .conf-fill { background: var(--amber); }
+.uncertain .conf-fill { background: var(--blue); }
+.conf-num { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); min-width: 36px; text-align: right; }
+
+.section { margin-bottom: 28px; }
+.section-label {
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  font-family: 'DM Mono', monospace; color: var(--muted);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.sources-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.src-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px; transition: border-color 0.15s;
+}
+.src-card:hover { border-color: var(--border2); }
+.src-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.src-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.src-stance {
+  font-size: 10px; font-family: 'DM Mono', monospace; font-weight: 600;
+  padding: 2px 7px; border-radius: 3px; letter-spacing: 0.05em; white-space: nowrap;
+}
+.stance-CONFERMA     { background: rgba(34,201,122,0.12); color: var(--green); }
+.stance-SMENTISCE    { background: rgba(240,82,82,0.12);  color: var(--red); }
+.stance-PARZIALE     { background: rgba(245,166,35,0.12); color: var(--amber); }
+.stance-NON_TRATTATO { background: var(--surface2); color: var(--muted); }
+
+.src-meta { font-size: 11px; color: var(--muted); margin-bottom: 6px; font-family: 'DM Mono', monospace; }
+.src-snippet { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+.analysis-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px 22px;
+  font-size: 14px; color: rgba(240,239,248,0.75); line-height: 1.8;
+}
+
+.flags-pre-wrap {
+  display: none;
+  flex-direction: column; gap: 8px;
+  margin-bottom: 20px;
+}
+.flags-pre-wrap.visible { display: flex; }
+.flags-pre-header {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 2px;
+}
+.flags-pre-header::before { content: ''; display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); flex-shrink: 0; animation: pulse-dot 1.4s ease-in-out infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+.flag-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: rgba(245,166,35,0.08);
+  border: 1px solid rgba(245,166,35,0.25);
+  border-left: 3px solid var(--amber);
+  border-radius: 10px; padding: 12px 16px;
+  font-size: 13px; color: rgba(240,239,248,0.85); line-height: 1.6;
+  animation: slideUp 0.3s ease both;
+}
+.flag-icon { color: var(--amber); font-size: 16px; margin-top: 0px; flex-shrink: 0; }
+.flag-list { display: flex; flex-direction: column; gap: 8px; }
+
+.reset-row { text-align: center; padding: 16px 0 40px; }
+.btn-reset {
+  background: none; border: 1px solid var(--border2); border-radius: 8px;
+  padding: 8px 20px; color: var(--muted); font-family: 'Outfit', sans-serif;
+  font-size: 13px; cursor: pointer; transition: all 0.15s;
+}
+.btn-reset:hover { color: var(--text); background: var(--surface); }
+
+.error-box {
+  display: none; background: rgba(240,82,82,0.07); border: 1px solid rgba(240,82,82,0.2);
+  border-radius: 10px; padding: 16px 20px; font-size: 14px; color: var(--red); margin-bottom: 20px;
+}
+
+.cred-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; }
+
+.call-counter {
+  position: fixed; bottom: 20px; right: 20px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 8px 14px;
+  font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); z-index: 100;
+}
+.call-counter span { color: var(--text); font-weight: 500; }
+
+/* Source quotes */
+.quotes-list { display: flex; flex-direction: column; gap: 14px; }
+.quote-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 18px;
+  border-left: 3px solid var(--accent);
+}
+.quote-card-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
+}
+.quote-source-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.quote-date { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.quote-article-title { font-size: 12px; color: var(--accent); margin-bottom: 8px; font-style: italic; }
+.quote-exact {
+  font-size: 13px; color: rgba(240,239,248,0.8); line-height: 1.7;
+  background: var(--surface2); border-radius: 6px; padding: 10px 14px;
+  border-left: 2px solid var(--border2);
+  font-family: 'DM Mono', monospace; font-size: 12px;
+  margin-bottom: 8px; white-space: pre-wrap; word-break: break-word;
+}
+.quote-not-available {
+  font-size: 12px; color: var(--muted); font-style: italic;
+  padding: 8px 14px; background: var(--surface2); border-radius: 6px;
+  margin-bottom: 8px;
+}
+.quote-relevance { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.quote-relevance strong { color: var(--amber); }
+
+.confidence-breakdown {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace;
+  margin-top: 6px;
+}
+.conf-penalty { color: var(--red); }
+.conf-bonus { color: var(--green); }
+
+
+.uncertainty-note {
+  display: none;
+  background: rgba(96,165,250,0.06); border: 1px solid rgba(96,165,250,0.2);
+  border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;
+  font-size: 13px; color: rgba(96,165,250,0.9); line-height: 1.6;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.uncertainty-note.hidden { display: none !important; }
+.uncertainty-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* Fake news guide */
+.guide-wrap {
+  margin-bottom: 48px;
+  border: 1px solid var(--border2);
+  border-radius: 16px; overflow: hidden;
+}
+.guide-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; cursor: pointer;
+  background: var(--surface2); transition: background 0.15s;
+  user-select: none;
+}
+.guide-header:hover { background: rgba(124,106,255,0.08); }
+.guide-header-left { display: flex; align-items: center; gap: 12px; }
+.guide-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(124,106,255,0.3), rgba(168,85,247,0.3));
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.guide-title { font-size: 15px; font-weight: 500; }
+.guide-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.guide-chevron {
+  color: var(--muted); font-size: 18px; transition: transform 0.25s;
+  line-height: 1;
+}
+.guide-wrap.open .guide-chevron { transform: rotate(180deg); }
+.guide-body {
+  display: none; padding: 0 22px 22px;
+  background: var(--surface);
+}
+.guide-wrap.open .guide-body { display: block; }
+.guide-intro {
+  font-size: 13px; color: var(--muted); padding: 16px 0 20px;
+  line-height: 1.7; border-bottom: 1px solid var(--border);
+}
+.tips-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px; margin-top: 20px;
+}
+.tip-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.tip-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+.tip-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.tip-emoji { font-size: 20px; line-height: 1; }
+.tip-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.tip-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.tip-tag {
+  display: inline-block; margin-top: 8px;
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  padding: 2px 8px; border-radius: 4px; letter-spacing: 0.05em;
+}
+.tag-red    { background: rgba(240,82,82,0.1);  color: var(--red); }
+.tag-amber  { background: rgba(245,166,35,0.1); color: var(--amber); }
+.tag-green  { background: rgba(34,201,122,0.1); color: var(--green); }
+.tag-blue   { background: rgba(96,165,250,0.1); color: var(--blue); }
+.tag-purple { background: rgba(124,106,255,0.1); color: var(--accent); }
+
+.guide-tools { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border); }
+.guide-tools-title { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 12px; }
+.tools-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.tool-pill {
+  font-size: 12px; padding: 5px 12px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 6px; color: var(--text); text-decoration: none;
+  font-family: 'DM Mono', monospace; transition: all 0.15s;
+}
+.tool-pill:hover { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo-row">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">Fact<span>Check</span> AI</div>
+    </div>
+    <p>Analisi avanzata di affermazioni su fonti internazionali multi-lingua con scoring di credibilità</p>
+    <div style="margin-top:18px;">
+      <a href="fakenews.html" style="
+        display:inline-flex;align-items:center;gap:8px;
+        font-size:13px;font-family:'DM Mono',monospace;
+        padding:7px 16px;border-radius:8px;text-decoration:none;
+        border:1px solid rgba(240,82,82,0.3);
+        background:rgba(240,82,82,0.07);color:#f05252;
+        transition:all 0.15s;
+      " onmouseover="this.style.background='rgba(240,82,82,0.14)'" onmouseout="this.style.background='rgba(240,82,82,0.07)'">
+        🚨 Archivio Fake News smascherata →
+      </a>
+    </div>
+  </header>
+
+  <div class="setup-banner">
+    <div class="setup-row">
+      <label>Gemini API Key</label>
+      <input type="password" id="api-key" placeholder="AIzaSy..." oninput="saveKey()" />
+      <select class="model-select" id="model-select" onchange="updateQuota()">
+        <option value="gemini-2.5-flash">Flash — 500 req/giorno ✓</option>
+        <option value="gemini-2.5-pro">Pro — 100 req/giorno</option>
+      </select>
+    </div>
+    <div class="quota-row">
+      <span class="quota-pill" id="q-rpm">10 req/min</span>
+      <span class="quota-pill" id="q-rpd">500 req/giorno</span>
+      <span class="quota-pill">nessuna carta di credito</span>
+    </div>
+    <div class="key-note">
+      Chiave gratuita su <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>
+      (basta un account Google, nessuna carta richiesta). La chiave resta solo nel tuo browser.
+    </div>
+  </div>
+
+  <div class="search-wrap">
+    <div class="claim-box">
+      <textarea id="claim-input" placeholder="Inserisci un'affermazione da verificare…" oninput="updateChar()"></textarea>
+      <div class="claim-box-footer">
+        <span class="char-count" id="char-count">0 caratteri</span>
+        <button class="btn-check" id="check-btn" onclick="startCheck()">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="7" cy="7" r="5"/><path d="m11 11 3 3"/>
+          </svg>
+          Verifica
+        </button>
+      </div>
+    </div>
+    <div class="examples-row">
+      <span class="ex-pill" onclick="useEx(this)">L'Italia è il 3° paese più visitato al mondo</span>
+      <span class="ex-pill" onclick="useEx(this)">Il 5G causa danni alla salute</span>
+      <span class="ex-pill" onclick="useEx(this)">ChatGPT è stato sviluppato da Google</span>
+      <span class="ex-pill" onclick="useEx(this)">La Terra è più calda che mai nella storia</span>
+      <span class="ex-pill" onclick="useEx(this)">Zelensky ha rifiutato i negoziati di pace</span>
+    </div>
+  </div>
+
+  <div class="error-box" id="error-box"></div>
+
+  <!-- Nota di incertezza (mostrata quando confidence < 60) -->
+  <div class="uncertainty-note hidden" id="uncertainty-note">
+    <span class="uncertainty-icon">💡</span>
+    <span id="uncertainty-text"></span>
+  </div>
+
+  <div class="loading-wrap" id="loading-wrap">
+    <div class="scanner"></div>
+    <div class="loading-step" id="loading-step">Inizializzazione...</div>
+    <div class="loading-sources" id="loading-sources"></div>
+  </div>
+
+  <div class="result-wrap" id="result-wrap">
+
+    <!-- Segnali di attenzione — PRIMA del verdetto -->
+    <div class="flags-pre-wrap" id="flags-pre-wrap">
+      <div class="flags-pre-header">⚠ Segnali di attenzione rilevati</div>
+      <div class="flag-list" id="flag-list"></div>
+    </div>
+
+    <div class="verdict-banner" id="verdict-banner">
+      <div class="verdict-chip" id="verdict-chip"></div>
+      <div class="verdict-title" id="verdict-title"></div>
+      <div class="verdict-summary" id="verdict-summary"></div>
+      <div class="conf-bar-wrap">
+        <div class="conf-bar"><div class="conf-fill" id="conf-fill" style="width:0%"></div></div>
+        <div class="conf-num" id="conf-num">0%</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Fonti trovate su Google <span style="font-size:10px;background:rgba(34,201,122,0.1);color:var(--green);border:1px solid rgba(34,201,122,0.2);padding:2px 7px;border-radius:4px;margin-left:6px;letter-spacing:0;text-transform:none;">🔍 ricerca live</span></div>
+      <div class="sources-grid" id="sources-grid"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Analisi dettagliata</div>
+      <div class="analysis-card" id="analysis-card"></div>
+    </div>
+
+    <div class="section" id="quotes-section" style="display:none;">
+      <div class="section-label">Citazioni dirette dalle fonti <span style="font-size:10px;background:rgba(124,106,255,0.1);color:var(--accent);border:1px solid rgba(124,106,255,0.2);padding:2px 7px;border-radius:4px;margin-left:6px;letter-spacing:0;text-transform:none;">📄 testo originale</span></div>
+      <div class="quotes-list" id="quotes-list"></div>
+    </div>
+
+    <div class="reset-row">
+      <button class="btn-reset" onclick="resetAll()">← Nuova verifica</button>
+    </div>
+  </div>
+
+  <!-- ===== GUIDA: Come riconoscere una fake news ===== -->
+  <div class="guide-wrap" id="guide-wrap">
+    <div class="guide-header" onclick="toggleGuide()">
+      <div class="guide-header-left">
+        <div class="guide-icon">🛡️</div>
+        <div>
+          <div class="guide-title">Come riconoscere una fake news</div>
+          <div class="guide-subtitle">10 segnali, tecniche pratiche e strumenti gratuiti</div>
+        </div>
+      </div>
+      <div class="guide-chevron">⌄</div>
+    </div>
+    <div class="guide-body">
+      <div class="guide-intro">
+        Le fake news sono progettate per sembrare vere. Conoscere i segnali d'allarme e le tecniche di verifica ti permette di non essere ingannato — anche quando una notizia sembra convincente o proviene da qualcuno di fidato.
+      </div>
+
+      <div class="tips-grid">
+        <div class="tip-card">
+          <div class="tip-top"><span class="tip-emoji">🔗</span><span class="tip-name">Controlla la fonte</span></div>
+          <div class="tip-desc">Visita il sito originale: esiste davvero? Ha una redazione, un "Chi siamo", contatti reali? Diffida di domini simili a testate note (es. <em>bbc-news24.net</em>).</div>
+          <span class="tip-tag tag-red">Segnale critico</span>
+        </div>
+        <div class="tip-card">
+          <div class="tip-top"><span class="tip-emoji">📅</span><span class="tip-name">Verifica la data</span></div>
+          <div class="tip-desc">Molte fake news sono notizie vecchie riciclate come se fossero attuali. Controlla sempre la data di pubblicazione originale prima di condividere.</div>
+          <span class="tip-tag tag-amber">Spesso ignorato</span>
+        </div>
+        <div class="tip-card">
+          <div class="tip-top"><span class="tip-emoji">🔍</span><span class="tip-name">Cerca su più fonti</span></div>
+          <div class="tip-desc">Se una notizia è vera, altre testate indipendenti la riportano. Se la trovi solo su un sito o canale social, è un segnale d'allarme forte.</div>
+          <span class="tip-tag tag-red">Segnale critico</span>
+        </div>
+        <div class="tip-card">
+          <div class="tip-top"><span class="tip-emoji">😡</span><span class="tip-name">Attenzione alle emozioni forti</span></div>
+          <div class="tip-desc">Titoli che provocano rabbia, paura o indignazione immediata sono spesso progettati per disattivare il pensiero critico. Più una notizia ti indigna, più è importante verificarla.</div>
+          <span class="tip-tag tag-amber">Trucco psicologico</span>
+        </div>
+        <div class="tip-card">
+          <div class="tip-top"><span class="tip-emoji">🖼️</span><span class="tip-name">Ricerca inversa delle immagini</span></div>
+          <div class="tip-desc">Le foto vengono spesso usate fuori contesto. Usa Google Immagini o TinEye per trovare l'origine originale di un'immagine e capire se è stata manipolata o decontestualizzata.</div>
+          <span class="tip-tag tag-green">Tecnica pratica</span>
+        </div>
+        <div class="tip-card">
+          <div class="tip-top"><span class="tip-emoji">✂️</span><span class="tip-name">Controlla le citazioni</span></div>
+          <div class="tip-desc">Le citazioni attribuite a personaggi famosi vengono spesso inventate. Cerca la citazione esatta tra virgolette su Google per verificare se è reale.</div>
+          <span class="tip-tag tag-green">Tecnica pratica</span>
+        </div>
+        <div class="tip-card">
+          <div class="tip-top"><span class="tip-emoji">🤖</span><span class="tip-name">Contenuti generati dall'AI</span></div>
+          <div class="tip-desc">Foto, video e audio falsi creati con AI sono sempre più convincenti. Cerca dettagli anomali (dita, orecchie, testo sullo sfondo) e usa strumenti di rilevamento deepfake.</div>
+          <span class="tip-tag tag-red">Nuova minaccia</span>
+        </div>
+        <div class="tip-card">
+          <div class="tip-top"><span class="tip-emoji">📊</span><span class="tip-name">Controlla i numeri</span></div>
+          <div class="tip-desc">Statistiche e percentuali vengono facilmente manipolate. Cerca la fonte originale del dato, controlla il contesto e diffida di cifre senza riferimento alla fonte.</div>
+          <span class="tip-tag tag-amber">Spesso trascurato</span>
+        </div>
+        <div class="tip-card">
+          <div class="tip-top"><span class="tip-emoji">🌐</span><span class="tip-name">Distingui opinione da fatto</span></div>
+          <div class="tip-desc">Un'analisi o un editoriale non è una notizia. Impara a distinguere tra fatti verificabili e interpretazioni. I titoli spesso presentano opinioni come se fossero fatti accertati.</div>
+          <span class="tip-tag tag-blue">Media literacy</span>
+        </div>
+        <div class="tip-card">
+          <div class="tip-top"><span class="tip-emoji">💬</span><span class="tip-name">Chi ci guadagna?</span></div>
+          <div class="tip-desc">Chiediti sempre chi trae vantaggio dalla diffusione di quella notizia. Le fake news spesso servono interessi politici, economici o ideologici specifici. Segui il denaro e il potere.</div>
+          <span class="tip-tag tag-purple">Pensiero critico</span>
+        </div>
+      </div>
+
+      <div class="guide-tools">
+        <div class="guide-tools-title">Strumenti gratuiti per verificare</div>
+        <div class="tools-list">
+          <a class="tool-pill" href="fakenews.html" style="border-color:rgba(240,82,82,0.3);color:#f05252;">🚨 Archivio Fake News</a>
+          <a class="tool-pill" href="https://www.snopes.com" target="_blank">Snopes</a>
+          <a class="tool-pill" href="https://www.factcheck.org" target="_blank">FactCheck.org</a>
+          <a class="tool-pill" href="https://www.politifact.com" target="_blank">PolitiFact</a>
+          <a class="tool-pill" href="https://images.google.com" target="_blank">Google Immagini inversa</a>
+          <a class="tool-pill" href="https://www.tineye.com" target="_blank">TinEye</a>
+          <a class="tool-pill" href="https://archive.org" target="_blank">Wayback Machine</a>
+          <a class="tool-pill" href="https://toolbox.google.com/factcheck/explorer" target="_blank">Google Fact Check Tools</a>
+          <a class="tool-pill" href="https://www.lavoce.info" target="_blank">LaVoce.info</a>
+          <a class="tool-pill" href="https://pagellapolitica.it" target="_blank">Pagella Politica</a>
+          <a class="tool-pill" href="https://facta.news" target="_blank">Facta.news</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="call-counter">
+  Verifiche sessione: <span id="call-count">0</span>
+</div>
+
+<script>
+const SOURCES = {
+  "BBC News":            { score: 95, lang: "EN" },
+  "Reuters":             { score: 95, lang: "EN" },
+  "Associated Press":    { score: 93, lang: "EN" },
+  "The Guardian":        { score: 88, lang: "EN" },
+  "New York Times":      { score: 87, lang: "EN" },
+  "Washington Post":     { score: 86, lang: "EN" },
+  "NPR":                 { score: 88, lang: "EN" },
+  "Le Monde":            { score: 90, lang: "FR" },
+  "France 24":           { score: 85, lang: "FR" },
+  "El País":             { score: 87, lang: "ES" },
+  "Deutsche Welle":      { score: 88, lang: "DE" },
+  "Al Jazeera":          { score: 78, lang: "EN" },
+  "ANSA":                { score: 82, lang: "IT" },
+  "Corriere della Sera": { score: 83, lang: "IT" },
+  "La Repubblica":       { score: 81, lang: "IT" },
+  "Il Sole 24 Ore":      { score: 85, lang: "IT" },
+  "CNN":                 { score: 75, lang: "EN" },
+  "Clarin":              { score: 72, lang: "ES" },
+};
+
+const QUOTA_INFO = {
+  "gemini-2.5-flash": { rpm: "10 req/min", rpd: "500 req/giorno" },
+  "gemini-2.5-pro":   { rpm: "5 req/min",  rpd: "100 req/giorno" },
+};
+
+let apiKey = '';
+let callCount = 0;
+
+function saveKey() { apiKey = document.getElementById('api-key').value.trim(); }
+
+function updateQuota() {
+  const model = document.getElementById('model-select').value;
+  const q = QUOTA_INFO[model] || {};
+  document.getElementById('q-rpm').textContent = q.rpm || '';
+  document.getElementById('q-rpd').textContent = q.rpd || '';
+}
+
+function updateChar() {
+  document.getElementById('char-count').textContent =
+    document.getElementById('claim-input').value.length + ' caratteri';
+}
+
+function useEx(el) {
+  document.getElementById('claim-input').value = el.textContent;
+  updateChar();
+}
+
+function credColor(s) { return s >= 85 ? '#22c97a' : s >= 70 ? '#f5a623' : '#f05252'; }
+function credLabel(s) { return s >= 85 ? 'Alta' : s >= 70 ? 'Media' : 'Bassa'; }
+
+function verdictClass(v) {
+  if (v === 'VERO') return 'true';
+  if (v === 'FALSO') return 'false';
+  if (v === 'PARZIALMENTE VERO') return 'partial';
+  return 'uncertain';
+}
+function verdictEmoji(v) {
+  return { 'VERO':'✓', 'FALSO':'✗', 'PARZIALMENTE VERO':'~' }[v] || '?';
+}
+
+const STEPS = [
+  'Ricerca su Google in corso...',
+  'Analisi approfondita delle fonti...',
+  'Verifica notizie in più lingue...',
+  'Calcolo punteggi di credibilità...',
+  'Confronto versioni e rilevamento contraddizioni...',
+  'Generazione verdetto motivato...'
+];
+
+async function startCheck() {
+  const claim = document.getElementById('claim-input').value.trim();
+  if (!claim) return;
+  const key = apiKey || document.getElementById('api-key').value.trim();
+  if (!key) { showError('Inserisci la Gemini API key. Gratis su aistudio.google.com/apikey'); return; }
+
+  hideError();
+  document.getElementById('uncertainty-note').classList.add('hidden');
+  document.getElementById('check-btn').disabled = true;
+  document.getElementById('result-wrap').style.display = 'none';
+  document.getElementById('loading-wrap').style.display = 'block';
+
+  let si = 0;
+  const stepEl = document.getElementById('loading-step');
+  stepEl.textContent = STEPS[0];
+  const stepTimer = setInterval(() => { si = Math.min(si+1, STEPS.length-1); stepEl.textContent = STEPS[si]; }, 2000);
+
+  const srcEl = document.getElementById('loading-sources');
+  srcEl.innerHTML = '';
+  const badge = document.createElement('div');
+  badge.className = 'src-badge';
+  badge.textContent = '🔍 Google Search attivo — ricerca notizie aggiornate...';
+  badge.style.cssText = 'color:var(--accent);border-color:rgba(124,106,255,0.3);';
+  srcEl.appendChild(badge);
+
+  const credMap = Object.entries(SOURCES)
+    .map(([name, info]) => `${name} (${info.lang}, credibilità ${info.score}/100)`)
+    .join(' | ');
+
+  const model = document.getElementById('model-select').value;
+
+  const prompt = `Sei un sistema professionale di fact-checking con accesso a Google Search in tempo reale.
+
+AFFERMAZIONE DA VERIFICARE: "${claim}"
+
+═══════════════════════════════════════════
+FASE 1 — RICERCA (esegui PRIMA di scrivere qualsiasi risposta)
+═══════════════════════════════════════════
+Esegui almeno 4 ricerche Google distinte:
+  1. La query esatta dell'affermazione
+  2. Smentite o verifiche da fact-checker (aggiungi "fact check" o "bufala" alla query)
+  3. Fonti primarie (sito ufficiale, istituzione, enciclopedia)
+  4. Query in inglese per fonti internazionali
+
+Ricerca temporale esplicita:
+  • Cerca anche fonti più vecchie o storiche quando utili per confrontare versioni diverse dello stesso fatto nel tempo.
+  • Se il claim riguarda classifiche, primati, numeri, dichiarazioni, date o eventi, confronta fonti recenti con fonti meno recenti per individuare eventuali discrepanze.
+
+Punteggi di riferimento delle fonti: ${credMap}
+
+═══════════════════════════════════════════
+FASE 2 — REGOLE FERREE SULLA VERIDICITÀ
+═══════════════════════════════════════════
+⛔ VIETATO ASSOLUTO — infrazioni gravi che invalidano l'analisi:
+  • NON interpolAre o sintetizzare dati che non hai letto esplicitamente in una fonte
+  • NON dedurre date, luoghi, nomi, numeri se non trovati letteralmente in un articolo
+  • NON usare la tua conoscenza pregressa come prova — conta SOLO ciò che hai trovato su Google ORA
+  • NON attribuire a una fonte qualcosa che non dice esplicitamente (es: se un articolo parla del genere musicale, non dedurre anche l'anno di fondazione)
+
+GESTIONE TEMPORALE DELLE FONTI:
+  • Le fonti più vecchie non vanno ignorate automaticamente.
+  • Se una fonte vecchia contraddice una fonte recente, segnala esplicitamente la discrepanza nei flags e nell'analysis.
+  • Se una notizia o immagine è stata riciclata fuori contesto temporale, trattalo come segnale d'allarme forte.
+  • Usa fonti vecchie come contesto storico o per confronto temporale, ma non come unica prova dello stato attuale se esistono fonti più recenti.
+
+✅ OBBLIGATORIO per ogni fatto citato nell'analisi:
+  • Indica la testata, il titolo dell'articolo e la data di pubblicazione trovata
+  • Se un dato non ha una fonte esplicita trovata in questa sessione → NON scriverlo
+
+═══════════════════════════════════════════
+FASE 3 — CALCOLO DELLA CONFIDENCE
+═══════════════════════════════════════════
+Parti da 70 e applica questi aggiustamenti:
+
+PENALITÀ (sottrai):
+  -25 se nessuna fonte tratta il claim direttamente (trattano solo argomenti correlati)
+  -10 se usi fonti più vecchie di 2 anni come prova principale di uno stato attuale SENZA conferma recente
+  -15 se c'è contraddizione tra fonti di pari credibilità
+  -10 se hai trovato meno di 2 fonti rilevanti
+  -10 se hai dovuto dedurre/interpolare anche un solo dato non trovato esplicitamente
+
+BONUS (aggiungi):
+  +15 se hai trovato una fonte primaria ufficiale (sito istituzionale, comunicato, studio peer-reviewed)
+  +10 se almeno 3 fonti indipendenti concordano
+  +5 se hai trovato un fact-checker che ha già analizzato il claim
+  +5 se il confronto tra fonti recenti e fonti più vecchie permette di individuare una discrepanza temporale, una contraddizione o una notizia riciclata
+
+Confidence finale: clamp tra 25 e 95. Non restituire mai 100 (nessuna certezza assoluta) né meno di 25.
+Se la confidence finale è < 50, il verdict DEVE essere "NON VERIFICABILE" indipendentemente da tutto il resto.
+
+═══════════════════════════════════════════
+FORMATO RISPOSTA — JSON PURO, NESSUN TESTO ATTORNO
+═══════════════════════════════════════════
+{
+  "verdict": "VERO" | "FALSO" | "PARZIALMENTE VERO" | "NON VERIFICABILE",
+  "confidence": <intero 25-95>,
+  "title": "<titolo sintetico del verdetto, max 10 parole>",
+  "summary": "<2-3 frasi. Ogni fatto deve avere tra parentesi la fonte: es. (Corriere, 12/03/2024)>",
+  "analysis": "<6-8 frasi SOLO con fatti trovati esplicitamente. Formato: 'Secondo [Testata] nell'articolo \"[Titolo]\" del [data], [fatto esatto].' Se un dato non ha fonte esplicita, scrivi 'Dato non trovato nelle fonti consultate.'>",
+  "source_quotes": [
+    {
+      "source": "<nome testata>",
+      "date": "<data pubblicazione trovata, es: 15/02/2024, oppure 'data non disponibile'>",
+      "article_title": "<titolo esatto dell'articolo trovato su Google, oppure stringa vuota se non disponibile>",
+      "url": "<URL trovato oppure stringa vuota — NON inventare>",
+      "exact_quote": "<frase o paragrafo COPIATO LETTERALMENTE dall'articolo, senza parafrasare — max 80 parole. Se non riesci a estrarre testo letterale scrivi 'Snippet non disponibile'>",
+      "relevance": "<in 1 frase: cosa prova o smentisce questo articolo rispetto al claim>"
+    }
+  ],
+  "sources": [
+    {
+      "name": "<nome testata>",
+      "url": "<URL trovato oppure stringa vuota>",
+      "stance": "CONFERMA" | "SMENTISCE" | "PARZIALE" | "NON_TRATTATO",
+      "snippet": "<cosa dice questa fonte, con dettagli espliciti — NON dedurre dati non presenti>"
+    }
+  ],
+  "uncertainty_note": "<OBBLIGATORIO se confidence < 60: spiega esattamente quali dati mancano, quali fonti non hai trovato, e cosa bisognerebbe cercare per aumentare la certezza. Stringa vuota solo se confidence >= 60>",
+  "flags": [
+    "<flag 1: Le fonti più vecchie descrivono un contesto diverso da quello attuale>",
+    "<flag 2: Possibile discrepanza temporale tra articoli del [anno] e fonti recenti>",
+    "<flag 3: Notizia o dato riciclato fuori contesto temporale>"
+  ]
+}
+
+REGOLE FINALI:
+- "source_quotes" deve avere da 3 a 6 elementi, uno per ogni fonte principale consultata
+- "sources" deve avere da 4 a 8 elementi
+- Non inventare URL — se non ce l'hai, lascia stringa vuota
+- Non inventare date — se non le hai trovate scrivi "data non disponibile"
+- Se per un fatto nell'analisi non esiste una source_quote corrispondente → elimina quel fatto`;
+
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          tools: [{ google_search: {} }],
+          generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
+        })
+      }
+    );
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      const msg = err.error?.message || `Errore HTTP ${resp.status}`;
+      if (msg.includes('API_KEY_INVALID') || msg.includes('API key not valid'))
+        throw new Error('API key non valida. Controllala su aistudio.google.com/apikey');
+      if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('quota'))
+        throw new Error('Quota esaurita. Riprova domani o scegli un altro modello.');
+      throw new Error(msg);
+    }
+
+    const data = await resp.json();
+    // Con google_search Gemini restituisce più parti — le uniamo
+    const parts = data.candidates?.[0]?.content?.parts || [];
+    const raw = parts.map(p => p.text || '').join('');
+    if (!raw) throw new Error('Risposta vuota dal modello. Riprova.');
+
+    const result = parseModelResponse(raw);
+
+    callCount++;
+    document.getElementById('call-count').textContent = callCount;
+    clearInterval(stepTimer);
+    document.getElementById('loading-wrap').style.display = 'none';
+    renderResult(result);
+
+  } catch(e) {
+    clearInterval(stepTimer);
+    document.getElementById('loading-wrap').style.display = 'none';
+    document.getElementById('check-btn').disabled = false;
+    showError('Errore: ' + e.message);
+  }
+}
+
+function renderResult(r) {
+  const vc = verdictClass(r.verdict);
+  document.getElementById('verdict-banner').className = 'verdict-banner ' + vc;
+  document.getElementById('verdict-chip').textContent = verdictEmoji(r.verdict) + '  ' + r.verdict;
+  document.getElementById('verdict-title').textContent = r.title;
+  document.getElementById('verdict-summary').textContent = r.summary;
+
+  document.getElementById('conf-fill').style.width = '0%';
+  document.getElementById('conf-num').textContent = r.confidence + '%';
+  setTimeout(() => { document.getElementById('conf-fill').style.width = r.confidence + '%'; }, 150);
+
+  // Nota di incertezza
+  const noteEl = document.getElementById('uncertainty-note');
+  if (r.uncertainty_note && r.uncertainty_note.trim()) {
+    document.getElementById('uncertainty-text').textContent = '⚠ ' + r.uncertainty_note;
+    noteEl.classList.remove('hidden');
+    noteEl.style.display = 'flex';
+  } else {
+    noteEl.classList.add('hidden');
+    noteEl.style.display = 'none';
+  }
+
+  const grid = document.getElementById('sources-grid');
+  grid.innerHTML = '';
+  (r.sources || []).forEach(s => {
+    const info = SOURCES[s.name] || { score: null, lang: '??' };
+    const key = (s.stance || 'NON_TRATTATO').replace(/ /g, '_');
+    const label = key.replace(/_/g, ' ');
+    const scoreDisplay = info.score !== null
+      ? `${info.lang} · Credibilità ${credLabel(info.score)} (${info.score}/100)`
+      : 'Fonte trovata su Google';
+    const dotColor = info.score !== null ? credColor(info.score) : '#7c6aff';
+    const nameHtml = (s.url && s.url.startsWith('http'))
+      ? `<a href="${s.url}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none;border-bottom:1px solid var(--border2);">${s.name} ↗</a>`
+      : s.name;
+    const div = document.createElement('div');
+    div.className = 'src-card';
+    div.innerHTML = `
+      <div class="src-top">
+        <div class="src-name">${nameHtml}</div>
+        <div class="src-stance stance-${key}">${label}</div>
+      </div>
+      <div class="src-meta">
+        <span class="cred-dot" style="background:${dotColor}"></span>
+        ${scoreDisplay}
+      </div>
+      <div class="src-snippet">${s.snippet}</div>
+    `;
+    grid.appendChild(div);
+  });
+
+  document.getElementById('analysis-card').textContent = r.analysis;
+
+  // Source quotes
+  const quotesSection = document.getElementById('quotes-section');
+  const quotesList = document.getElementById('quotes-list');
+  quotesList.innerHTML = '';
+  if (r.source_quotes && r.source_quotes.length > 0) {
+    quotesSection.style.display = 'block';
+    r.source_quotes.forEach(q => {
+      const hasQuote = q.exact_quote && q.exact_quote !== 'Snippet non disponibile';
+      const hasUrl = q.url && q.url.startsWith('http');
+      const titleHtml = q.article_title
+        ? `<div class="quote-article-title">${hasUrl ? `<a href="${q.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">"${q.article_title}" ↗</a>` : `"${q.article_title}"`}</div>`
+        : (hasUrl ? `<div class="quote-article-title"><a href="${q.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">Apri articolo ↗</a></div>` : '');
+      const d = document.createElement('div');
+      d.className = 'quote-card';
+      d.innerHTML = `
+        <div class="quote-card-top">
+          <div class="quote-source-name">${q.source}</div>
+          <div class="quote-date">📅 ${q.date}</div>
+        </div>
+        ${titleHtml}
+        ${hasQuote
+          ? `<div class="quote-exact">"${q.exact_quote}"</div>`
+          : `<div class="quote-not-available">⚠ Testo letterale non disponibile per questa fonte</div>`
+        }
+        ${q.relevance ? `<div class="quote-relevance"><strong>Rilevanza:</strong> ${q.relevance}</div>` : ''}
+      `;
+      quotesList.appendChild(d);
+    });
+  } else {
+    quotesSection.style.display = 'none';
+  }
+
+  const fl = document.getElementById('flag-list');
+  const flagsWrap = document.getElementById('flags-pre-wrap');
+  fl.innerHTML = '';
+  const flags = r.flags || [];
+  if (flags.length > 0) {
+    flags.forEach((f, i) => {
+      const d = document.createElement('div');
+      d.className = 'flag-item';
+      d.style.animationDelay = (i * 0.07) + 's';
+      d.innerHTML = `<span class="flag-icon">⚠</span><span>${f}</span>`;
+      fl.appendChild(d);
+    });
+    flagsWrap.classList.add('visible');
+  } else {
+    flagsWrap.classList.remove('visible');
+  }
+
+  document.getElementById('result-wrap').style.display = 'block';
+  document.getElementById('check-btn').disabled = false;
+  document.getElementById('result-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetAll() {
+  document.getElementById('result-wrap').style.display = 'none';
+  document.getElementById('uncertainty-note').classList.add('hidden');
+  document.getElementById('uncertainty-note').style.display = 'none';
+  document.getElementById('quotes-section').style.display = 'none';
+  document.getElementById('quotes-list').innerHTML = '';
+  document.getElementById('flag-list').innerHTML = '';
+  document.getElementById('flags-pre-wrap').classList.remove('visible');
+  document.getElementById('claim-input').value = '';
+  updateChar();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleGuide() {
+  document.getElementById('guide-wrap').classList.toggle('open');
+}
+
+function parseModelResponse(raw) {
+  const text = String(raw || '').trim();
+  if (!text) throw new Error('Risposta vuota dal modello. Riprova.');
+
+  const candidates = [text];
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fenced?.[1]) candidates.push(fenced[1].trim());
+
+  const firstBrace = text.indexOf('{');
+  const lastBrace = text.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    candidates.push(text.slice(firstBrace, lastBrace + 1));
+  }
+
+  for (const candidate of candidates) {
+    try {
+      const parsed = JSON.parse(candidate);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return normalizeResult(parsed, text);
+      }
+    } catch (_) {}
+  }
+
+  const recovered = recoverFromMalformedJson(text);
+  if (recovered) return recovered;
+
+  return fallbackResultFromText(text);
+}
+
+function normalizeResult(parsed, rawText) {
+  const verdicts = ['VERO', 'FALSO', 'PARZIALMENTE VERO', 'NON VERIFICABILE'];
+  const verdict_raw = verdicts.includes(parsed.verdict) ? parsed.verdict : 'NON VERIFICABILE';
+  let confidence = clampConfidence(parsed.confidence);
+
+  // REGOLA: se confidence < 50, forza verdetto a NON VERIFICABILE
+  const verdict = confidence < 50 ? 'NON VERIFICABILE' : verdict_raw;
+
+  const title = String(parsed.title || 'Esito della verifica');
+  const summary = String(parsed.summary || 'La risposta non era in formato strutturato completo.');
+  const analysis = String(parsed.analysis || rawText || summary);
+  const uncertainty_note = String(parsed.uncertainty_note || '');
+
+  const sources = Array.isArray(parsed.sources)
+    ? parsed.sources
+        .filter(s => s && typeof s === 'object')
+        .map(s => {
+          const rawStance = String(s.stance || 'NON_TRATTATO').trim().toUpperCase().replace(/\s+/g, '_');
+          const validStances = ['CONFERMA', 'SMENTISCE', 'PARZIALE', 'NON_TRATTATO'];
+          const stance = validStances.includes(rawStance) ? rawStance : 'NON_TRATTATO';
+          return {
+            name: String(s.name || 'Fonte non specificata'),
+            url: String(s.url || ''),
+            stance,
+            snippet: String(s.snippet || '')
+          };
+        })
+    : [];
+
+  const source_quotes = Array.isArray(parsed.source_quotes)
+    ? parsed.source_quotes
+        .filter(q => q && typeof q === 'object')
+        .map(q => ({
+          source: String(q.source || ''),
+          date: String(q.date || 'data non disponibile'),
+          article_title: String(q.article_title || ''),
+          url: String(q.url || ''),
+          exact_quote: String(q.exact_quote || 'Snippet non disponibile'),
+          relevance: String(q.relevance || '')
+        }))
+    : [];
+
+  const flags = Array.isArray(parsed.flags)
+    ? parsed.flags.map(f => String(f)).filter(Boolean)
+    : ['Output non perfettamente strutturato'];
+
+  return { verdict, confidence, title, summary, analysis, uncertainty_note, sources, source_quotes, flags };
+}
+
+function fallbackResultFromText(text) {
+  const compact = text.replace(/\s+/g, ' ').trim();
+  const summary = compact.slice(0, 240) || 'Il modello ha risposto in formato non JSON.';
+  return {
+    verdict: 'NON VERIFICABILE',
+    confidence: 45,
+    title: 'Risposta non strutturata',
+    summary,
+    analysis: compact || 'Nessun contenuto utile restituito dal modello.',
+    sources: [],
+    flags: ['Risposta del modello non in JSON valido']
+  };
+}
+
+function recoverFromMalformedJson(text) {
+  const compact = text.replace(/\s+/g, ' ').trim();
+  const verdict = extractVerdict(text);
+  const confidence = extractNumberField(text, 'confidence');
+  const title = extractStringField(text, 'title');
+  const summary = extractStringField(text, 'summary');
+  const analysis = extractStringField(text, 'analysis');
+
+  const foundAny = Boolean(verdict || confidence !== null || title || summary || analysis);
+  if (!foundAny) return null;
+
+  const bestAnalysis = analysis || compact || 'Risposta parziale del modello.';
+  const bestSummary = summary || bestAnalysis.slice(0, 240);
+
+  return {
+    verdict: verdict || inferVerdictFromText(compact),
+    confidence: clampConfidence(confidence ?? inferConfidenceFromText(compact)),
+    title: title || 'Esito della verifica',
+    summary: bestSummary,
+    analysis: bestAnalysis,
+    sources: [],
+    flags: ['Risposta parziale recuperata automaticamente']
+  };
+}
+
+function extractVerdict(text) {
+  const direct = extractStringField(text, 'verdict');
+  const normalized = normalizeVerdict(direct);
+  if (normalized) return normalized;
+  return inferVerdictFromText(text);
+}
+
+function inferVerdictFromText(text) {
+  const upper = String(text || '').toUpperCase();
+  if (upper.includes('PARZIALMENTE VERO')) return 'PARZIALMENTE VERO';
+  if (upper.includes('NON VERIFICABILE')) return 'NON VERIFICABILE';
+  if (upper.includes('FALSO')) return 'FALSO';
+  if (upper.includes('VERO')) return 'VERO';
+  return 'NON VERIFICABILE';
+}
+
+function normalizeVerdict(value) {
+  const upper = String(value || '').toUpperCase().trim();
+  if (upper === 'VERO') return 'VERO';
+  if (upper === 'FALSO') return 'FALSO';
+  if (upper === 'PARZIALMENTE VERO') return 'PARZIALMENTE VERO';
+  if (upper === 'NON VERIFICABILE') return 'NON VERIFICABILE';
+  return null;
+}
+
+function inferConfidenceFromText(text) {
+  const perc = String(text || '').match(/\b(\d{1,3})\s*%/);
+  if (!perc) return 50;
+  return Number(perc[1]);
+}
+
+function extractNumberField(text, field) {
+  const regex = new RegExp(`"${field}"\\s*:\\s*(-?\\d+(?:\\.\\d+)?)`, 'i');
+  const match = String(text || '').match(regex);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? value : null;
+}
+
+function extractStringField(text, field) {
+  const source = String(text || '');
+  const keyRegex = new RegExp(`"${field}"\\s*:`, 'i');
+  const keyMatch = source.match(keyRegex);
+  if (!keyMatch || keyMatch.index === undefined) return '';
+
+  let cursor = keyMatch.index + keyMatch[0].length;
+  while (cursor < source.length && /\s/.test(source[cursor])) cursor += 1;
+  if (cursor >= source.length) return '';
+
+  const firstChar = source[cursor];
+  if (firstChar === '"' || firstChar === "'") {
+    const quote = firstChar;
+    cursor += 1;
+    let value = '';
+    let escaped = false;
+
+    for (let index = cursor; index < source.length; index += 1) {
+      const char = source[index];
+      if (escaped) {
+        value += char;
+        escaped = false;
+        continue;
+      }
+      if (char === '\\') {
+        escaped = true;
+        continue;
+      }
+      if (char === quote) {
+        return cleanupLooseString(value);
+      }
+      value += char;
+    }
+
+    const nextField = value.search(/,\s*"(?:verdict|confidence|title|summary|analysis|sources|flags)"\s*:/i);
+    const truncated = nextField >= 0 ? value.slice(0, nextField) : value;
+    return cleanupLooseString(truncated);
+  }
+
+  const tail = source.slice(cursor);
+  const stop = tail.search(/,\s*"(?:verdict|confidence|title|summary|analysis|sources|flags)"\s*:|\n|\r|\}/i);
+  const rawValue = stop >= 0 ? tail.slice(0, stop) : tail;
+  return cleanupLooseString(rawValue);
+}
+
+function cleanupLooseString(value) {
+  return String(value || '')
+    .replace(/\\n/g, ' ')
+    .replace(/\\r/g, ' ')
+    .replace(/\\t/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function clampConfidence(value) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 50;
+  return Math.max(0, Math.min(100, Math.round(num)));
+}
+function showError(msg) {
+  const el = document.getElementById('error-box');
+  el.textContent = msg; el.style.display = 'block';
+}
+function hideError() { document.getElementById('error-box').style.display = 'none'; }
+</script>
+</body>
+</html>
